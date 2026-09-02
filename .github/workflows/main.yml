@@ -16,6 +16,12 @@ jobs:
           sudo apt update
           sudo apt install -y build-essential bc bison flex libssl-dev libelf-dev clang llvm lld git gcc-aarch64-linux-gnu python3
 
+      - name: Install Python 2 (required for old kernel build scripts)
+        run: |
+          sudo apt install -y python2
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+          python --version
+
       - name: Clone Kernel Source
         run: |
           git clone --depth=1 https://github.com/OnePlusOSS/android_kernel_oneplus_sm7225 kernel-source
@@ -34,3 +40,9 @@ jobs:
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
           make O=out ARCH=arm64 -j$(nproc)
+
+      - name: Upload Build Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-build-output
+          path: kernel-source/out/arch/arm64/boot/
