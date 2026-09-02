@@ -28,8 +28,17 @@ jobs:
 
       - name: Download Prebuilt GCC Toolchain (aarch64)
         run: |
-          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 gcc64
-          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 gcc32
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 $GITHUB_WORKSPACE/gcc64
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 $GITHUB_WORKSPACE/gcc32
+
+      - name: Verify Toolchain Exists
+        run: |
+          echo "---- gcc64/bin contents ----"
+          ls -la $GITHUB_WORKSPACE/gcc64/bin/ || echo "gcc64/bin NOT FOUND"
+          echo "---- gcc32/bin contents ----"
+          ls -la $GITHUB_WORKSPACE/gcc32/bin/ || echo "gcc32/bin NOT FOUND"
+          echo "---- Testing compiler ----"
+          $GITHUB_WORKSPACE/gcc64/bin/aarch64-linux-android-gcc --version || echo "COMPILER NOT WORKING"
 
       - name: Prepare Kernel
         run: |
