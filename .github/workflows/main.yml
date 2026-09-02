@@ -14,7 +14,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential bc bison flex libssl-dev libelf-dev clang llvm lld git gcc-aarch64-linux-gnu python3
+          sudo apt install -y build-essential bc bison flex libssl-dev libelf-dev git python3
 
       - name: Install Python 2 (required for old kernel build scripts)
         run: |
@@ -26,11 +26,17 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/OnePlusOSS/android_kernel_oneplus_sm7225 kernel-source
 
+      - name: Download Prebuilt GCC Toolchain (aarch64)
+        run: |
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 gcc64
+          git clone --depth=1 https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 gcc32
+
       - name: Prepare Kernel
         run: |
           cd kernel-source
           export ARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CROSS_COMPILE=$GITHUB_WORKSPACE/gcc64/bin/aarch64-linux-android-
+          export CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/gcc32/bin/arm-linux-androideabi-
           make O=out vendor/lito-perf_defconfig
           make O=out olddefconfig
 
@@ -38,7 +44,8 @@ jobs:
         run: |
           cd kernel-source
           export ARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CROSS_COMPILE=$GITHUB_WORKSPACE/gcc64/bin/aarch64-linux-android-
+          export CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/gcc32/bin/arm-linux-androideabi-
           make O=out ARCH=arm64 -j$(nproc)
 
       - name: Upload Build Output
